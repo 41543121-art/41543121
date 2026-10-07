@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>護理系一年級甲班 - Class Website</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #f0fdf4; /* Very soft green/blue tint base */
+        }
+        
+        /* Custom scrollbar for a polished look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .section-container {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .section-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Voting bar animation */
+        .vote-bar {
+            transition: width 0.5s ease-out;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nursing: {
+                            blue: '#bfdbfe',
+                            darkblue: '#1e3a8a',
+                            pink: '#fbcfe8',
+                            darkpink: '#be185d',
+                            bg: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Logo / Home Button -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer group" onclick="app.navigateTo('home')">
+                    <div class="w-10 h-10 rounded-full bg-nursing-pink flex items-center justify-center text-nursing-darkpink group-hover:bg-nursing-darkpink group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-notes-medical text-xl"></i>
+                    </div>
+                    <span class="ml-3 font-bold text-xl text-nursing-darkblue group-hover:text-blue-700 transition-colors">護一甲</span>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <button onclick="app.navigateTo('home')" class="nav-btn text-gray-600 hover:text-nursing-darkpink font-medium transition-colors border-b-2 border-transparent hover:border-nursing-darkpink pb-1" data-target="home">首頁 (Home)</button>
+                    <button onclick="app.navigateTo('students')" class="nav-btn text-gray-600 hover:text-nursing-darkpink font-medium transition-colors border-b-2 border-transparent hover:border-nursing-darkpink pb-1" data-target="students">同學名單 (Students)</button>
+                    <button onclick="app.navigateTo('schedule')" class="nav-btn text-gray-600 hover:text-nursing-darkpink font-medium transition-colors border-b-2 border-transparent hover:border-nursing-darkpink pb-1" data-target="schedule">班級課表 (Schedule)</button>
+                    <button onclick="app.navigateTo('voting')" class="nav-btn text-gray-600 hover:text-nursing-darkpink font-medium transition-colors border-b-2 border-transparent hover:border-nursing-darkpink pb-1" data-target="voting">主題投票 (Voting)</button>
+                    <button onclick="app.navigateTo('activities')" class="nav-btn text-gray-600 hover:text-nursing-darkpink font-medium transition-colors border-b-2 border-transparent hover:border-nursing-darkpink pb-1" data-target="activities">活動花絮 (Activities)</button>
+                    <button onclick="app.navigateTo('selector')" class="nav-btn text-gray-600 hover:text-nursing-darkpink font-medium transition-colors border-b-2 border-transparent hover:border-nursing-darkpink pb-1" data-target="selector">抽籤工具 (Selector)</button>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-nursing-darkblue focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Panel -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 px-2 pt-2 pb-3 space-y-1 sm:px-3 shadow-lg">
+            <button onclick="app.navigateTo('home')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-nursing-darkpink hover:bg-gray-50">首頁 (Home)</button>
+            <button onclick="app.navigateTo('students')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-nursing-darkpink hover:bg-gray-50">同學名單 (Students)</button>
+            <button onclick="app.navigateTo('schedule')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-nursing-darkpink hover:bg-gray-50">班級課表 (Schedule)</button>
+            <button onclick="app.navigateTo('voting')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-nursing-darkpink hover:bg-gray-50">主題投票 (Voting)</button>
+            <button onclick="app.navigateTo('activities')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-nursing-darkpink hover:bg-gray-50">活動花絮 (Activities)</button>
+            <button onclick="app.navigateTo('selector')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-nursing-darkpink hover:bg-gray-50">抽籤工具 (Selector)</button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- ================= HOME SECTION ================= -->
+        <section id="home" class="section-container active">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+                <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                    <span class="text-nursing-darkpink font-semibold tracking-wider uppercase text-sm mb-2">Welcome to Class A</span>
+                    <h1 class="text-4xl md:text-5xl font-bold text-nursing-darkblue mb-6 leading-tight">護理系一年級甲班<br><span class="text-2xl text-gray-500 font-normal">Nursing Dept. Year 1</span></h1>
+                    <p class="text-gray-600 mb-8 text-lg leading-relaxed">
+                        歡迎來到我們的班級專屬網頁！這裡是我們分享學習資源、記錄生活點滴、以及共同決策的地方。一起在護理的道路上學習成長吧！
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="app.navigateTo('schedule')" class="bg-nursing-darkblue text-white px-6 py-3 rounded-full hover:bg-blue-800 transition shadow-md flex items-center">
+                            <i class="fa-regular fa-calendar-days mr-2"></i> 查看課表
+                        </button>
+                        <button onclick="app.navigateTo('activities')" class="bg-nursing-pink text-nursing-darkpink px-6 py-3 rounded-full hover:bg-pink-300 transition shadow-md flex items-center font-medium">
+                            <i class="fa-solid fa-camera-retro mr-2"></i> 最新花絮
+                        </button>
+                    </div>
+                </div>
+                <div class="md:w-1/2 bg-blue-50">
+                    <img src="https://placehold.co/800x600/bfdbfe/1e3a8a?text=Nursing+Class+A" alt="Class Hero" class="w-full h-full object-cover">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4 cursor-pointer hover:shadow-md transition" onclick="app.navigateTo('students')">
+                    <div class="bg-blue-100 p-4 rounded-full text-blue-600"><i class="fa-solid fa-user-group text-2xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-lg">班級名單</h3>
+                        <p class="text-sm text-gray-500">認識我們的同學</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4 cursor-pointer hover:shadow-md transition" onclick="app.navigateTo('voting')">
+                    <div class="bg-pink-100 p-4 rounded-full text-pink-600"><i class="fa-solid fa-check-to-slot text-2xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-lg">班級投票</h3>
+                        <p class="text-sm text-gray-500">參與班級事務決策</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4 cursor-pointer hover:shadow-md transition" onclick="app.navigateTo('selector')">
+                    <div class="bg-emerald-100 p-4 rounded-full text-emerald-600"><i class="fa-solid fa-dice text-2xl"></i></div>
+                    <div>
+                        <h3 class="font-bold text-lg">隨機抽籤</h3>
+                        <p class="text-sm text-gray-500">課堂提問與分組小幫手</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= STUDENTS SECTION ================= -->
+        <section id="students" class="section-container">
+            <div class="mb-8 border-b pb-4 flex justify-between items-end">
+                <div>
+                    <h2 class="text-3xl font-bold text-nursing-darkblue">同學名單 (Classmates)</h2>
+                    <p class="text-gray-500 mt-2">護一甲總計 <span id="student-count" class="font-bold text-nursing-darkpink">0</span> 名成員</p>
+                </div>
+            </div>
+            
+            <div id="students-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Student cards will be injected here by JS -->
+            </div>
+        </section>
+
+        <!-- ================= SCHEDULE SECTION ================= -->
+        <section id="schedule" class="section-container">
+            <div class="mb-8 border-b pb-4">
+                <h2 class="text-3xl font-bold text-nursing-darkblue">班級課表 (Class Schedule)</h2>
+                <p class="text-gray-500 mt-2">112學年度 第一學期</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+                <table class="min-w-full text-center border-collapse">
+                    <thead class="bg-blue-50 text-blue-900 border-b-2 border-blue-200">
+                        <tr>
+                            <th class="py-4 px-4 font-semibold w-24">節次 / 時間</th>
+                            <th class="py-4 px-4 font-semibold">星期一 (Mon)</th>
+                            <th class="py-4 px-4 font-semibold">星期二 (Tue)</th>
+                            <th class="py-4 px-4 font-semibold">星期三 (Wed)</th>
+                            <th class="py-4 px-4 font-semibold">星期四 (Thu)</th>
+                            <th class="py-4 px-4 font-semibold">星期五 (Fri)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-body" class="divide-y divide-gray-200">
+                        <!-- Schedule rows injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================= VOTING SECTION ================= -->
+        <section id="voting" class="section-container">
+            <div class="mb-8 border-b pb-4">
+                <h2 class="text-3xl font-bold text-nursing-darkblue">主題投票 (Class Voting)</h2>
+                <p class="text-gray-500 mt-2">請針對班級事務投下您神聖的一票！ (您的選擇會記錄在本地端)</p>
+            </div>
+
+            <div id="polls-container" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Polls injected by JS -->
+            </div>
+        </section>
+
+        <!-- ================= ACTIVITIES SECTION ================= -->
+        <section id="activities" class="section-container">
+            <div class="mb-8 border-b pb-4">
+                <h2 class="text-3xl font-bold text-nursing-darkblue">活動花絮 (Activities Highlights)</h2>
+                <p class="text-gray-500 mt-2">記錄我們護理系生活的美好瞬間</p>
+            </div>
+
+            <div id="activities-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Activities injected by JS -->
+            </div>
+        </section>
+
+        <!-- ================= RANDOM SELECTOR SECTION ================= -->
+        <section id="selector" class="section-container">
+            <div class="mb-8 border-b pb-4">
+                <h2 class="text-3xl font-bold text-nursing-darkblue">抽籤工具 (Random Selector)</h2>
+                <p class="text-gray-500 mt-2">從班級名單中隨機抽取同學，適合用於課堂提問或抽獎。</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-50 to-pink-50 p-6 md:p-8 border-b border-gray-100">
+                    <div class="flex flex-col md:flex-row gap-6 items-end">
+                        <div class="flex-1 w-full">
+                            <label for="pick-count" class="block text-sm font-medium text-gray-700 mb-2">選取人數 (Number to pick)</label>
+                            <input type="number" id="pick-count" min="1" value="1" class="w-full rounded-xl border-gray-300 border px-4 py-3 focus:ring-2 focus:ring-nursing-pink focus:border-nursing-darkpink outline-none transition">
+                        </div>
+                        <div class="flex-1 w-full flex items-center h-12">
+                            <label class="flex items-center cursor-pointer group">
+                                <div class="relative">
+                                    <input type="checkbox" id="allow-repeat" class="sr-only">
+                                    <div class="block bg-gray-200 w-12 h-7 rounded-full transition-colors group-hover:bg-gray-300 peer-checked:bg-nursing-darkpink" id="toggle-bg"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform duration-300" id="toggle-dot"></div>
+                                </div>
+                                <div class="ml-3 text-gray-700 font-medium">允許重複選取 (Allow Repeats)</div>
+                            </label>
+                        </div>
+                        <div class="w-full md:w-auto">
+                            <button onclick="app.drawRandomStudents()" class="w-full md:w-auto bg-nursing-darkpink hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition transform hover:scale-105 flex items-center justify-center">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> 抽出 (Draw)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Inline Alert Message Box (No window.alert) -->
+                <div id="selector-message" class="hidden mx-8 mt-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded" role="alert">
+                    <p class="font-bold">提示</p>
+                    <p id="selector-message-text">錯誤訊息</p>
+                </div>
+
+                <div class="p-8 min-h-[300px] flex flex-col items-center justify-center bg-gray-50/50" id="draw-results-container">
+                    <div class="text-gray-400 text-center" id="draw-empty-state">
+                        <i class="fa-solid fa-users text-6xl mb-4 opacity-50"></i>
+                        <p>設定條件並點擊「抽出」按鈕</p>
+                    </div>
+                    
+                    <div id="draw-results" class="w-full flex flex-wrap justify-center gap-4 hidden">
+                        <!-- Result cards injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-gray-500 text-sm">
+                &copy; 2026 護理系一年級甲班 (Nursing Dept. Year 1 Class A). All rights reserved.<br>
+                <span class="text-xs text-gray-400 mt-1 inline-block">Made with <i class="fa-solid fa-heart text-red-400 mx-1"></i> for future nurses.</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Data Models & Mock Data
+        const classData = {
+            students: [
+                { id: '101', name: '林小美', role: '班代', avatar: 'https://placehold.co/150x150/fbcfe8/be185d?text=林', motto: '護理是一門藝術。' },
+                { id: '102', name: '陳大強', role: '副班代', avatar: 'https://placehold.co/150x150/bfdbfe/1e3a8a?text=陳', motto: '努力學習解剖學！' },
+                { id: '103', name: '王心凌', role: '活動', avatar: 'https://placehold.co/150x150/fbcfe8/be185d?text=王', motto: '微笑是最好的良藥。' },
+                { id: '104', name: '張宇軒', role: '學藝', avatar: 'https://placehold.co/150x150/bfdbfe/1e3a8a?text=張', motto: '筆記做滿滿，考試不擔心。' },
+                { id: '105', name: '李佳穎', role: '總務', avatar: 'https://placehold.co/150x150/fbcfe8/be185d?text=李', motto: '精打細算為班上省錢。' },
+                { id: '106', name: '黃冠宇', role: '同學', avatar: 'https://placehold.co/150x150/bfdbfe/1e3a8a?text=黃', motto: '喜歡生理學。' },
+                { id: '107', name: '吳欣怡', role: '同學', avatar: 'https://placehold.co/150x150/fbcfe8/be185d?text=吳', motto: '希望能去大醫院實習。' },
+                { id: '108', name: '周杰倫', role: '同學', avatar: 'https://placehold.co/150x150/bfdbfe/1e3a8a?text=周', motto: '打針快狠準是我的目標。' },
+                { id: '109', name: '蔡依林', role: '同學', avatar: 'https://placehold.co/150x150/fbcfe8/be185d?text=蔡', motto: '愛心、耐心、同理心。' },
+                { id: '110', name: '劉德華', role: '同學', avatar: 'https://placehold.co/150x150/bfdbfe/1e3a8a?text=劉', motto: '救人第一。' },
+                { id: '111', name: '楊丞琳', role: '同學', avatar: 'https://placehold.co/150x150/fbcfe8/be185d?text=楊', motto: '兒科護理是我的夢想。' },
+                { id: '112', name: '林俊傑', role: '同學', avatar: 'https://placehold.co/150x150/bfdbfe/1e3a8a?text=林', motto: '用歌聲療癒病患(X)。' }
+            ],
+            
+            schedule: [
+                { time: '08:10 - 09:00', mon: '解剖學', tue: '國文', wed: '基本護理學', thu: '生理學', fri: '體育' },
+                { time: '09:10 - 10:00', mon: '解剖學', tue: '國文', wed: '基本護理學', thu: '生理學', fri: '體育' },
+                { time: '10:10 - 11:00', mon: '護理導論', tue: '心理學', wed: '英文', thu: '微積分', fri: '護理倫理' },
+                { time: '11:10 - 12:00', mon: '護理導論', tue: '心理學', wed: '英文', thu: '班會', fri: '護理倫理' },
+                { time: '12:00 - 13:00', mon: '午休', tue: '午休', wed: '午休', thu: '午休', fri: '午休' },
+                { time: '13:10 - 14:00', mon: '基本護理學實驗', tue: '通識課程', wed: '解剖學實驗', thu: '資訊科學', fri: '社團活動' },
+                { time: '14:10 - 15:00', mon: '基本護理學實驗', tue: '通識課程', wed: '解剖學實驗', thu: '資訊科學', fri: '社團活動' },
+                { time: '15:10 - 16:00', mon: '基本護理學實驗', tue: '自主學習', wed: '自主學習', thu: '圖書館研究', fri: '放學' }
+            ],
+
+            activities: [
+                { title: '加冠典禮', date: '2026-05-12', desc: '象徵傳承南丁格爾精神，正式踏入護理專業的重要時刻。', img: 'https://placehold.co/600x400/fbcfe8/be185d?text=Capping+Ceremony' },
+                { title: '迎新茶會', date: '2025-09-15', desc: '學長姐熱情歡迎新生加入護理系大家庭。', img: 'https://placehold.co/600x400/bfdbfe/1e3a8a?text=Welcome+Party' },
+                { title: '醫院參訪', date: '2025-11-20', desc: '實地走訪醫學中心，了解臨床護理人員的工作環境。', img: 'https://placehold.co/600x400/bbf7d0/166534?text=Hospital+Visit' },
+                { title: '解剖學期末考拼命日常', date: '2026-01-10', desc: '大家在圖書館挑燈夜戰的紀錄。', img: 'https://placehold.co/600x400/fef08a/854d0e?text=Study+Hard' }
+            ],
+
+            // Initial Polls Data (Will be loaded from/to localStorage in a real app, here we use local memory but could use localStorage for persistence)
+            polls: [
+                {
+                    id: 'poll-1',
+                    question: '期末班級聚餐想吃什麼類型的餐廳？',
+                    options: [
+                        { id: 'opt-1-1', text: '火鍋吃到飽', votes: 12 },
+                        { id: 'opt-1-2', text: '日式燒肉', votes: 8 },
+                        { id: 'opt-1-3', text: '義大利麵/披薩', votes: 5 },
+                        { id: 'opt-1-4', text: '韓式料理', votes: 9 }
+                    ],
+                    totalVotes: 34,
+                    voted: false
+                },
+                {
+                    id: 'poll-2',
+                    question: '明年的班服底色想要哪一種？',
+                    options: [
+                        { id: 'opt-2-1', text: '護理粉 (Nursing Pink)', votes: 15 },
+                        { id: 'opt-2-2', text: '海軍藍 (Navy Blue)', votes: 18 },
+                        { id: 'opt-2-3', text: '純淨白 (Pure White)', votes: 4 },
+                        { id: 'opt-2-4', text: '薄荷綠 (Mint Green)', votes: 11 }
+                    ],
+                    totalVotes: 48,
+                    voted: false
+                }
+            ]
+        };
+
+        const app = {
+            init: function() {
+                // Setup Mobile Menu Toggle
+                document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                    const menu = document.getElementById('mobile-menu');
+                    menu.classList.toggle('hidden');
+                });
+
+                // Custom Checkbox Logic for Random Selector UI
+                const allowRepeatCb = document.getElementById('allow-repeat');
+                const toggleBg = document.getElementById('toggle-bg');
+                const toggleDot = document.getElementById('toggle-dot');
+                
+                allowRepeatCb.addEventListener('change', (e) => {
+                    if(e.target.checked) {
+                        toggleBg.classList.replace('bg-gray-200', 'bg-nursing-darkpink');
+                        toggleDot.style.transform = 'translateX(1.25rem)'; // move right
+                    } else {
+                        toggleBg.classList.replace('bg-nursing-darkpink', 'bg-gray-200');
+                        toggleDot.style.transform = 'translateX(0)'; // move left
+                    }
+                });
+
+                // Render Content
+                this.renderStudents();
+                this.renderSchedule();
+                this.renderPolls();
+                this.renderActivities();
+
+                // Check URL hash for initial routing
+                const hash = window.location.hash.replace('#', '');
+                if (hash && document.getElementById(hash)) {
+                    this.navigateTo(hash);
+                }
+            },
+
+            navigateTo: function(sectionId) {
+                // Hide all sections
+                document.querySelectorAll('.section-container').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Show target section
+                document.getElementById(sectionId).classList.add('active');
+
+                // Update URL hash without scrolling
+                history.pushState(null, null, `#${sectionId}`);
+
+                // Update active state on desktop nav
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    if (btn.dataset.target === sectionId) {
+                        btn.classList.add('text-nursing-darkpink', 'border-nursing-darkpink');
+                        btn.classList.remove('text-gray-600', 'border-transparent');
+                    } else {
+                        btn.classList.remove('text-nursing-darkpink', 'border-nursing-darkpink');
+                        btn.classList.add('text-gray-600', 'border-transparent');
+                    }
+                });
+
+                // Close mobile menu if open
+                document.getElementById('mobile-menu').classList.add('hidden');
+            },
+
+            renderStudents: function() {
+                const container = document.getElementById('students-grid');
+                document.getElementById('student-count').textContent = classData.students.length;
+                
+                let html = '';
+                classData.students.forEach(student => {
+                    const roleBadge = student.role !== '同學' 
+                        ? `<span class="px-2 py-1 bg-pink-100 text-nursing-darkpink text-xs font-bold rounded-full ml-2">${student.role}</span>` 
+                        : '';
+                        
+                    html += `
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow duration-300">
+                            <div class="relative mb-4">
+                                <img src="${student.avatar}" alt="${student.name}" class="w-24 h-24 rounded-full border-4 border-blue-50 shadow-sm object-cover">
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 flex items-center justify-center">${student.name} ${roleBadge}</h3>
+                            <p class="text-sm text-gray-500 mt-1">學號: ${student.id}</p>
+                            <p class="mt-4 text-gray-600 text-sm italic">"${student.motto}"</p>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            },
+
+            renderSchedule: function() {
+                const tbody = document.getElementById('schedule-body');
+                let html = '';
+                
+                classData.schedule.forEach((slot, index) => {
+                    const isBreak = slot.mon === '午休';
+                    const rowClass = isBreak ? 'bg-gray-50 text-gray-500 font-medium' : 'hover:bg-blue-50/50 transition-colors';
+                    const timeClass = 'font-medium text-gray-700 bg-white border-r border-gray-100';
+                    
+                    html += `
+                        <tr class="${rowClass} border-b border-gray-100">
+                            <td class="py-3 px-4 ${timeClass} whitespace-nowrap text-sm">${slot.time}</td>
+                            <td class="py-3 px-4 ${isBreak ? '' : 'text-gray-800'}">${slot.mon}</td>
+                            <td class="py-3 px-4 ${isBreak ? '' : 'text-gray-800'}">${slot.tue}</td>
+                            <td class="py-3 px-4 ${isBreak ? '' : 'text-gray-800'}">${slot.wed}</td>
+                            <td class="py-3 px-4 ${isBreak ? '' : 'text-gray-800'}">${slot.thu}</td>
+                            <td class="py-3 px-4 ${isBreak ? '' : 'text-gray-800'}">${slot.fri}</td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            },
+
+            renderPolls: function() {
+                const container = document.getElementById('polls-container');
+                let html = '';
+
+                classData.polls.forEach((poll, pIndex) => {
+                    html += `
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col">
+                            <h3 class="text-lg font-bold text-nursing-darkblue mb-1"><i class="fa-solid fa-q mr-2 text-nursing-pink"></i>${poll.question}</h3>
+                            <p class="text-sm text-gray-500 mb-6">總投票數: <span id="total-${poll.id}">${poll.totalVotes}</span> 票</p>
+                            
+                            <div class="space-y-4 flex-grow" id="poll-opts-${poll.id}">
+                                ${this.generateOptionsHtml(poll)}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            },
+
+            generateOptionsHtml: function(poll) {
+                let html = '';
+                poll.options.forEach(opt => {
+                    const percentage = poll.totalVotes === 0 ? 0 : Math.round((opt.votes / poll.totalVotes) * 100);
+                    
+                    if (poll.voted) {
+                        // Voted View - Show results
+                        html += `
+                            <div class="relative">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-medium text-gray-700">${opt.text}</span>
+                                    <span class="text-gray-500">${percentage}% (${opt.votes}票)</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="vote-bar bg-nursing-darkpink h-2.5 rounded-full" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // Voting View - Show buttons
+                        html += `
+                            <button onclick="app.submitVote('${poll.id}', '${opt.id}')" class="w-full text-left px-4 py-3 rounded-xl border-2 border-gray-100 hover:border-nursing-pink hover:bg-pink-50 transition flex items-center justify-between group">
+                                <span class="font-medium text-gray-700 group-hover:text-nursing-darkpink">${opt.text}</span>
+                                <i class="fa-regular fa-circle-check text-gray-300 group-hover:text-nursing-pink text-xl"></i>
+                            </button>
+                        `;
+                    }
+                });
+                return html;
+            },
+
+            submitVote: function(pollId, optionId) {
+                const poll = classData.polls.find(p => p.id === pollId);
+                if (poll && !poll.voted) {
+                    const option = poll.options.find(o => o.id === optionId);
+                    if (option) {
+                        option.votes += 1;
+                        poll.totalVotes += 1;
+                        poll.voted = true;
+                        
+                        // Re-render this specific poll's options
+                        document.getElementById(`total-${poll.id}`).textContent = poll.totalVotes;
+                        document.getElementById(`poll-opts-${poll.id}`).innerHTML = this.generateOptionsHtml(poll);
+                    }
+                }
+            },
+
+            renderActivities: function() {
+                const container = document.getElementById('activities-grid');
+                let html = '';
+                
+                classData.activities.forEach(act => {
+                    html += `
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow group">
+                            <div class="h-48 overflow-hidden relative">
+                                <img src="${act.img}" alt="${act.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-nursing-darkblue shadow-sm">
+                                    <i class="fa-regular fa-calendar mr-1"></i> ${act.date}
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">${act.title}</h3>
+                                <p class="text-gray-600 text-sm leading-relaxed">${act.desc}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            },
+
+            showMessage: function(text, isError = true) {
+                const msgBox = document.getElementById('selector-message');
+                const msgText = document.getElementById('selector-message-text');
+                
+                msgText.textContent = text;
+                msgBox.classList.remove('hidden');
+                
+                if (isError) {
+                    msgBox.classList.remove('bg-green-50', 'border-green-500', 'text-green-700');
+                    msgBox.classList.add('bg-red-50', 'border-red-500', 'text-red-700');
+                    msgBox.querySelector('.font-bold').textContent = '錯誤 (Error)';
+                } else {
+                    msgBox.classList.remove('bg-red-50', 'border-red-500', 'text-red-700');
+                    msgBox.classList.add('bg-green-50', 'border-green-500', 'text-green-700');
+                    msgBox.querySelector('.font-bold').textContent = '成功 (Success)';
+                }
+            },
+
+            hideMessage: function() {
+                document.getElementById('selector-message').classList.add('hidden');
+            },
+
+            drawRandomStudents: function() {
+                this.hideMessage();
+                const countInput = document.getElementById('pick-count').value;
+                const count = parseInt(countInput, 10);
+                const allowRepeat = document.getElementById('allow-repeat').checked;
+                
+                const resultsContainer = document.getElementById('draw-results');
+                const emptyState = document.getElementById('draw-empty-state');
+                const totalStudents = classData.students.length;
+
+                // Validation
+                if (isNaN(count) || count <= 0) {
+                    this.showMessage('請輸入大於 0 的數字！ (Please enter a valid number > 0)');
+                    return;
+                }
+
+                if (!allowRepeat && count > totalStudents) {
+                    this.showMessage(`不允許重複時，選取人數(${count})不能大於班級總人數(${totalStudents})！`);
+                    return;
+                }
+
+                // Drawing Logic
+                let selected = [];
+                if (allowRepeat) {
+                    for (let i = 0; i < count; i++) {
+                        const randomIndex = Math.floor(Math.random() * totalStudents);
+                        selected.push({...classData.students[randomIndex], drawId: i}); // add drawId for uniqueness in rendering
+                    }
+                } else {
+                    // Without replacement (Fisher-Yates shuffle logic on a copy)
+                    let pool = [...classData.students];
+                    for (let i = 0; i < count; i++) {
+                        const randomIndex = Math.floor(Math.random() * pool.length);
+                        selected.push({...pool[randomIndex], drawId: i});
+                        pool.splice(randomIndex, 1);
+                    }
+                }
+
+                // Display Results
+                emptyState.classList.add('hidden');
+                resultsContainer.classList.remove('hidden');
+                
+                // Add a small delay for "calculating" feel
+                resultsContainer.innerHTML = '<div class="text-nursing-darkpink"><i class="fa-solid fa-spinner fa-spin text-3xl"></i></div>';
+                
+                setTimeout(() => {
+                    let html = '';
+                    selected.forEach((student, i) => {
+                        html += `
+                            <div class="bg-white p-4 rounded-2xl shadow border border-gray-100 flex items-center space-x-4 w-full md:w-auto md:min-w-[250px] animate-[fadeIn_0.5s_ease-out_${i * 0.1}s_both]">
+                                <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-blue-800 flex-shrink-0">
+                                    ${i + 1}
+                                </div>
+                                <img src="${student.avatar}" class="w-12 h-12 rounded-full border-2 border-pink-100 object-cover" alt="avatar">
+                                <div>
+                                    <h4 class="font-bold text-lg text-gray-800">${student.name}</h4>
+                                    <p class="text-xs text-gray-500">${student.id}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    resultsContainer.innerHTML = html;
+                }, 600);
+            }
+        };
+
+        // Initialize App on DOM Load
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
